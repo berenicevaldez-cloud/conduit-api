@@ -1,6 +1,11 @@
 import { z } from "zod";
 import { ApiError } from "./errors.js";
 const text = z.string().trim().min(1, "can't be blank");
+const content = z.string().refine(
+  (value) => value.trim().length > 0,
+  { message: "can't be blank" },
+);
+
 const password = z
   .string()
   .min(1, "can't be blank")
@@ -25,16 +30,16 @@ export const userUpdate = z.object({
 export const articleCreate = z.object({
   title: text,
   description: text,
-  body: text,
+  body: content,
   tagList: z.array(text).optional().default([]),
 });
 export const articleUpdate = z.object({
   title: text.optional(),
   description: text.optional(),
-  body: text.optional(),
+  body: content.optional(),
   tagList: z.array(text).optional(),
 });
-export const commentCreate = z.object({ body: text });
+export const commentCreate = z.object({ body: content });
 export const pagination = z.object({
   limit: z.coerce.number().int().min(0).max(1000).default(20),
   offset: z.coerce.number().int().min(0).default(0),

@@ -1,4 +1,4 @@
-import bcrypt from "bcryptjs";
+import { hashPassword, verifyPassword } from "./passwords.js";
 import jwt from "jsonwebtoken";
 import { randomUUID } from "node:crypto";
 import { Repository, type User, type Article } from "./data.js";
@@ -55,7 +55,7 @@ export class Services {
         fail(409, field, "has already been taken");
   }
   async register(data: { username: string; email: string; password: string }) {
-    const hash = await bcrypt.hash(data.password, 12);
+    const hash = await hashPassword(data.password);
     this.unique(data);
     return this.repo.saveUser({
       ...data,
@@ -66,14 +66,14 @@ export class Services {
   }
   async login(data: { email: string; password: string }) {
     const u = this.repo.users().find((u) => u.email === data.email);
-    if (!u || !(await bcrypt.compare(data.password, u.password)))
+    if (!u || !(await verifyPassword(data.password, u.password)))
       return fail(401, "credentials", "invalid");
     return u;
   }
   async updateUser(u: User, data: Partial<Omit<User, "id">>) {
     this.unique(data, u.id);
     const changed = { ...u, ...data };
-    if (data.password) changed.password = await bcrypt.hash(data.password, 12);
+    if (data.password) changed.password = await hashPassword(data.password);
     changed.bio = changed.bio || null;
     changed.image = changed.image || null;
     return this.repo.saveUser(changed, u.id);

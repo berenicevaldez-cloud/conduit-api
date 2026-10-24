@@ -148,6 +148,18 @@ export function createApp(repo: Repository, secret: string) {
       res.status(400).json({ errors: { body: ["invalid JSON"] } });
       return;
     }
+    if (
+  err instanceof Error &&
+  "type" in err &&
+  err.type === "entity.too.large"
+) {
+  res.status(413).json({
+    errors: {
+      body: ["request exceeds the 100 KB limit"],
+    },
+  });
+  return;
+}
     console.error(err);
     res.status(500).json({ errors: { server: ["internal error"] } });
   });

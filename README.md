@@ -123,7 +123,7 @@ Se eligió SQLite por su persistencia y facilidad de ejecución, sin requerir un
 - Inicio de sesión.
 - Consulta del usuario autenticado.
 - Actualización del usuario autenticado.
-- Hash de contraseñas con bcrypt.
+- Hash de nuevas contraseñas con scrypt; compatibilidad con los hashes bcrypt existentes.
 - Autenticación mediante JWT.
 
 ### Artículos
@@ -175,13 +175,16 @@ Authorization: Token <jwt>
 - Zod para validación de solicitudes.
 - SQLite para persistencia local sin instalar un servidor.
 - Consultas SQL parametrizadas.
-- bcrypt con costo 12 para generar hashes de contraseñas.
+- scrypt de Node.js para nuevas contraseñas, con sal aleatoria de 16 bytes, N=16384, r=8, p=1 y clave derivada de 64 bytes. El formato almacenado incluye una versión.
+- bcrypt se conserva únicamente para verificar hashes anteriores; se rechazan entradas de más de 72 bytes en esa ruta para evitar truncamiento silencioso. Un usuario anterior con contraseña de más de 72 bytes necesitaría restablecerla; no se puede recuperar la parte que bcrypt descartó.
 - JWT firmado con HS256 y expiración de un día.
 - Clave de firma configurable mediante variables de entorno.
 - Slugs con título y UUID para permitir artículos con títulos repetidos.
 - Los listados omiten `body`, conforme a la especificación.
 - `articlesCount` representa el total filtrado antes de aplicar paginación.
 - Las pruebas propias utilizan SQLite en memoria para no modificar la base habitual.
+- El contenido de artículos y comentarios se valida sin recortar sus espacios ni saltos de línea.
+- Las solicitudes JSON mayores de 100 KB reciben HTTP 413 con un error estructurado.
 
 ## Pruebas propias
 
@@ -191,13 +194,21 @@ Ejecutar:
 npm test
 ```
 
-Se incluyen cuatro pruebas automatizadas:
+Las cuatro pruebas originales se complementan con cuatro pruebas de regresión de contraseñas:
 
 1. Un usuario no puede modificar ni eliminar artículos ajenos; el contenido original se conserva.
 2. Los JWT inválidos y el JSON malformado producen errores controlados.
 3. Las contraseñas se almacenan como hashes y su actualización cambia las credenciales válidas.
 4. Los títulos repetidos generan slugs distintos; la paginación y la omisión de `body` funcionan correctamente.
 
+5. Contraseñas que coinciden en sus primeros 72 bytes se distinguen al registrar y actualizar.
+6. Contraseñas Unicode que superan 72 bytes conservan sus diferencias.
+7. Las sales son aleatorias y los hashes almacenados malformados se rechazan.
+8. Los usuarios bcrypt anteriores pueden iniciar sesión sin admitir truncamientos.
+9. La creación y actualización de artículos conservan los espacios y saltos de línea del contenido.
+10. Los comentarios conservan el formato de su contenido.
+11. Los contenidos vacíos o compuestos solamente por espacios se rechazan.
+12. Las solicitudes JSON que exceden 100 KB reciben una respuesta 413 y la API continúa disponible.
 ## Colección oficial Hurl
 
 Instalación oficial:
@@ -257,7 +268,7 @@ Verificado localmente en Windows con Node.js 22.20.0 y Hurl 8.0.1:
 | Verificación | Resultado |
 |---|---|
 | `npm run build` | Compilación TypeScript sin errores. |
-| `npm test` | 4 pruebas aprobadas y 0 fallos. |
+| `npm test` | 12 pruebas aprobadas y 0 fallos. |
 | `npm run test:contract` | 13 archivos aprobados, 154 peticiones y 0 fallos. |
 
 La evidencia de Hurl está en `evidence/hurl-output.txt`.
