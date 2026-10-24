@@ -107,7 +107,7 @@ Se eligió SQLite por su persistencia y facilidad de ejecución, sin requerir un
 | `src/services.ts` | Reglas de negocio, permisos, contraseñas, tokens y representación de respuestas. |
 | `src/data.ts` | Repositorio SQLite y sentencias SQL parametrizadas. |
 | `src/errors.ts` | Errores controlados y sus códigos HTTP. |
-| `test/api.test.ts` | Pruebas propias automatizadas. |
+| `test/` | Pruebas propias de la API, contraseñas, contenido y límite de solicitudes. |
 | `scripts/contract.mjs` | Ejecutor de la colección Hurl mediante Node.js. |
 | `specs/openapi.yml` | Copia de la especificación OpenAPI utilizada. |
 | `specs/hurl/` | Colección oficial sin modificaciones. |
@@ -194,7 +194,7 @@ Ejecutar:
 npm test
 ```
 
-Las cuatro pruebas originales se complementan con cuatro pruebas de regresión de contraseñas:
+Se incluyen 12 pruebas propias que verifican autenticación, permisos, contraseñas, conservación del contenido y manejo de solicitudes demasiado grandes:
 
 1. Un usuario no puede modificar ni eliminar artículos ajenos; el contenido original se conserva.
 2. Los JWT inválidos y el JSON malformado producen errores controlados.
@@ -209,6 +209,7 @@ Las cuatro pruebas originales se complementan con cuatro pruebas de regresión d
 10. Los comentarios conservan el formato de su contenido.
 11. Los contenidos vacíos o compuestos solamente por espacios se rechazan.
 12. Las solicitudes JSON que exceden 100 KB reciben una respuesta 413 y la API continúa disponible.
+
 ## Colección oficial Hurl
 
 Instalación oficial:
