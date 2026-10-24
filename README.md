@@ -317,11 +317,9 @@ Si la especificación cambia antes del envío, se deben revisar los cambios, act
 
 ## Uso de IA
 
-Se utilizó asistencia de IA para analizar la especificación, generar la implementación inicial, preparar pruebas y documentación, e identificar y corregir fallos.
+Se utilizó IA para apoyar la implementación, preparar pruebas y documentación, e identificar y corregir fallos. La candidata realizó la configuración y ejecución local en Windows, las pruebas manuales, la compilación y las pruebas automatizadas con dicha asistencia.
 
-La instalación y ejecución local en Windows, las pruebas manuales, la compilación y la ejecución de las pruebas automatizadas fueron realizadas por la candidata con asistencia de IA.
-
-La IA se utilizó como herramienta de desarrollo; no forma parte de las funcionalidades de la API.
+La IA se utilizó como herramienta de desarrollo y no forma parte de las funcionalidades de la API.
 
 ## Archivos excluidos de Git
 
